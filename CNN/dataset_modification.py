@@ -81,18 +81,58 @@ def create_df():
     import pandas as pd
     import numpy as np
 
-    TRAIN_DATA_PATH = 'train_set/'
-    TEST_DATA_PATH = 'test_set/'
+    TRAIN_DATA_PATH = 'train_set_combined/'
+    TEST_DATA_PATH = 'test_set_combined/'
     train_data = []
     test_data = []
 
     for filename in os.listdir(TRAIN_DATA_PATH):
-        train_data.append(['parser/{}{}'.format(TRAIN_DATA_PATH, filename), filename.partition('_')[0]])
+        train_data.append(['{}{}'.format(TRAIN_DATA_PATH, filename), filename.partition('_')[0]])
 
     for filename in os.listdir(TEST_DATA_PATH):
-        test_data.append(['parser/{}{}'.format(TEST_DATA_PATH, filename), filename.partition('_')[0]])
+        test_data.append(['{}{}'.format(TEST_DATA_PATH, filename), filename.partition('_')[0]])
 
-    pd.DataFrame(train_data, columns=['filepath', 'price']).to_excel('train_data_cnn.xlsx')
-    pd.DataFrame(test_data, columns=['filepath', 'price']).to_excel('test_data_cnn.xlsx')
+    pd.DataFrame(train_data, columns=['filepath', 'price']).to_excel('train_data_combined_cnn.xlsx')
+    pd.DataFrame(test_data, columns=['filepath', 'price']).to_excel('test_data_combined_cnn.xlsx')
 
     print('Saved train and test data to disk')
+
+def combine_pics():
+
+    import os
+    from PIL import Image
+
+    PATH = 'test_set/'
+
+    files = []
+    qt_of_imgs = 100
+    i=4
+    while i < qt_of_imgs:
+
+        for filename in os.listdir(PATH)[i-4:i]:
+            files.append('{}{}'.format(PATH, filename))
+
+        img_name = files[0].partition('/')[2]
+
+        result = Image.new("RGB", (256, 256))
+
+        img1 = Image.open(files[0])
+        img1 = img1.resize((128,128))
+        img2= Image.open(files[1])
+        img2 = img2.resize((128, 128))
+        img3 = Image.open(files[2])
+        img3 = img3.resize((128, 128))
+        img4 = Image.open(files[3])
+        img4 = img4.resize((128, 128))
+
+        result.paste(img1, (0, 0))
+        result.paste(img2, (0, 128))
+        result.paste(img3, (128, 0))
+        result.paste(img4, (128, 128))
+
+        result.save(os.path.expanduser('test_set_combined/{}'.format(img_name)))
+        files.clear()
+        print('Combined {} image saved'.format(img_name))
+        i+=4
+
+create_df()
